@@ -2,7 +2,7 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.Arrays;
+import java.util.Arrays; 
 
 class InvalidRatingException extends Exception {
 	//I have no idea what this serialVersionUID is, but eclipse said I should add it so i did
