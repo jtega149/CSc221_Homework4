@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.util.Arrays; 
 
 class InvalidRatingException extends Exception {
-	//I have no idea what this serialVersionUID is, but eclipse said I should add it so i did
 	private static final long serialVersionUID = 1L;
 	public InvalidRatingException(String message) { super(message); }
 }
