@@ -45,9 +45,9 @@ class Movie implements Comparable<Movie> {
     
     @Override
     public int compareTo(Movie other) {
-        double diff = other.getAverageRating() - this.getAverageRating();
-        if (diff > 0) return 1;
-        if (diff < 0) return -1;
+        double x = other.getAverageRating() - this.getAverageRating();
+        if (x > 0) return 1;
+        if (x < 0) return -1;
         return 0;
     }
     
@@ -55,7 +55,7 @@ class Movie implements Comparable<Movie> {
 
 public class homework4{
 	public static void main(String[] args) {
-		String filePath = "/Users/johnortega/Downloads/movies.csv";
+		String filePath = "movies.csv";
         String line;
         int numMovies = 0; //Will be used to determine total valid records
         
