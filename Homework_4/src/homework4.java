@@ -1,4 +1,4 @@
-
+//JOHN ORTEGA, EMPIL ID: 24425175
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -38,15 +38,6 @@ class Movie implements Comparable<Movie> {
 		this.rating3 = rating3;
 	}
 	
-	public Movie(Movie other) {
-        this.title = other.title;
-        this.year = other.year;
-        this.genre = other.genre;
-        this.rating1 = other.rating1;
-        this.rating2 = other.rating2;
-        this.rating3 = other.rating3;
-    }
-	
 	public double getAverageRating() { return (rating1 + rating2 + rating3) / 3.0; }
 	public String getTitle() { return title; }
 	public int getYear() { return year; }
@@ -54,32 +45,33 @@ class Movie implements Comparable<Movie> {
     
     @Override
     public int compareTo(Movie other) {
-        return Double.compare(other.getAverageRating(), this.getAverageRating());
+        double diff = other.getAverageRating() - this.getAverageRating();
+        if (diff > 0) return 1;
+        if (diff < 0) return -1;
+        return 0;
     }
+    
 }
 
 public class homework4{
 	public static void main(String[] args) {
-		String filePath = "movies.csv";
+		String filePath = "/Users/johnortega/Downloads/movies.csv";
         String line;
-        Movie[] movies = new Movie[7]; //Static array expecting 7 records maximum
-        int finalSize = 0; //Will be used to determine total valid records
+        int numMovies = 0; //Will be used to determine total valid records
         
         try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
         	String headers = br.readLine();
         	if(headersValidation(headers) == false) //Program halts if headers aren't correct
         		throw new InvalidHeadersException("Invalid format for headers!");
-        	int index_movies = 0; //Used to properly store movie objects into movies array
             while ((line = br.readLine()) != null) {
             	try {
 	            	String[] values = line.split(",");
-	        
 	            	String title = values[0];
-	            	int year = Integer.parseInt(values[1]);
+	            	int year = Integer.parseInt(values[1].trim());
 	            	String genre = values[2];
 	            	
 	            	//Ratings will be in a array to easily loop and check validity 
-	            	int[] ratings = { Integer.parseInt(values[3]), Integer.parseInt(values[4]), Integer.parseInt(values[5]) };
+	            	int[] ratings = { Integer.parseInt(values[3].trim() ), Integer.parseInt(values[4].trim()), Integer.parseInt(values[5].trim()) };
 	                
 	            	if (!(year >= 1900 && year <= 2100)) { //Record ignored if year isn't within [1900, 2100]
 	                	throw new InvalidYearException("Year (" + year + ") is not withing proper range");
@@ -89,10 +81,8 @@ public class homework4{
 	                		throw new InvalidRatingException("Rating (" + ratings[i] + ") is not within proper range");
 	                	}
 	                }
-	                
-	                //Initializing array at index index_movies, with a new movie object
-	                movies[index_movies] = new Movie(title, year, genre, ratings[0], ratings[1], ratings[2]);
-	                index_movies++;
+	               
+	                numMovies++;
 	                
             	}
             	catch(NumberFormatException e) { 
@@ -101,7 +91,7 @@ public class homework4{
             		else
             			System.err.println("Cannot convert string to numeric type " + e.getMessage());
             	}
-            	catch (ArrayIndexOutOfBoundsException e) {
+            	catch (ArrayIndexOutOfBoundsException e) { //Will execute when a record isn't entered
             		System.err.println("Missing a field, record invalid!");
                 }
             	catch(InvalidYearException e) { //Catching and handling the exception thrown when year is invalid
@@ -110,20 +100,10 @@ public class homework4{
             	catch(InvalidRatingException e) { //Catching and handling the exception thrown when a rating is invalid
             		System.err.println("Invalid Record: " + e.getMessage());
             	}
-            	finalSize = index_movies;
          
             	
             }
-            
-            if(finalSize == 0) throw new NoValidRecordsException("No valid records, exiting program");
-            
-            //Making a new array of objects that is of a size of the exact number of valid records
-            Movie[] officialMovies = new Movie[finalSize];
-            for (int i = 0; i < finalSize; i++) {
-            	officialMovies[i] = new Movie(movies[i]);
-            }
-
-            printMovieInfo(officialMovies); //Printing out the information about all the valid records
+            if(numMovies == 0) throw new NoValidRecordsException("No valid records, exiting program");
         } 
         catch (IOException e) {
             System.err.println("Error reading file: " + e.getMessage());
@@ -135,6 +115,34 @@ public class homework4{
         	System.err.println(e.getMessage());
         }
         
+        //Sizing array to a size of the amount of valid records, and inserting
+        Movie[] movies = new Movie[numMovies];
+        try (BufferedReader br = new BufferedReader(new FileReader(filePath))) {
+        	br.readLine();
+        	
+        	int index_movies = 0; //Used to properly store movie objects into movies array
+            while ((line = br.readLine()) != null) {
+            	try {
+	            	String[] values = line.split(",");
+	            	String title = values[0];
+	            	int year = Integer.parseInt(values[1].trim());
+	            	String genre = values[2];
+	            	int[] ratings = { Integer.parseInt(values[3].trim() ), Integer.parseInt(values[4].trim()), Integer.parseInt(values[5].trim()) };
+	                
+	            	if (!(year >= 1900 && year <= 2100)) continue;
+	                for(int i = 0; i < 3; i++) {
+	                	if(!(ratings[i] >= 1 && ratings[i] <= 100)) continue;
+	                }
+	                //Initializing array at index index_movies, with a new movie object
+	                movies[index_movies] = new Movie(title, year, genre, ratings[0], ratings[1], ratings[2]);
+	                index_movies++;
+	                
+            	}
+            	catch(NumberFormatException | ArrayIndexOutOfBoundsException e) {}
+            }
+            printMovieInfo(movies); //Printing out the information about all the valid records
+        } 
+        catch (IOException e) {}
 	}
 	
 	//Checks to see if the headers match Title, Year, Genre, Rating1, Rating2, and Rating3 (case insensitive)
